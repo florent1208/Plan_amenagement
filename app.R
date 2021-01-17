@@ -11,8 +11,6 @@ library(DT) # pour créer des tableau interactifs
 st_read("data/Peup_for.shp") -> peup_for 
 if (!st_crs(peup_for)$epsg %in% c(4326)) st_transform(peup_for, 4326) -> peup_for
 
-peup_for$No_Peup <- as.character(peup_for$No_Peup)
-
 ui <- fluidPage(
   fluidRow(column(width=8,offset= 2,h2("Carte du lot"),
                   leafletOutput(outputId = "map",height = 600))),
@@ -69,23 +67,22 @@ server <- function(input, output){
   ################# Tableau des peuplements ##################
   
   peup_for%>%
-    st_drop_geometry->info
+    st_drop_geometry %>% #supprime la géométrie
+    subset(select= -OBJECTID)%>% #supprime les champs inutiles
+    mutate(sup_ha= round(sup_ha,2))%>% # arrondit le champ "sup_ha"
+    arrange(No_Peup)->info # trier le tableau en ordre croissant en fonction du champ "No_Peup"
   
-  info$No_Peup <-as.numeric(info$No_Peup)
-  info$sup_ha<-round(info$sup_ha, 2)
-  info[order(info$No_Peup),]->info
-  
-  
+
   output$tableau<- renderDataTable({
     datatable(info,
-              colnames = c("# Peuplement", "Affectation", "Groupement d'essence", "Classe de densité", "Classe de hauteur", "Classe d'age", "Type de couvert", "Travaux suggérés","Échéancier","Superficie (ha)"),
+              colnames = c("# Peuplement", "Affectation", "Groupement d'essence", "Classe de densité", "Classe de hauteur", "Classe d'âge", "Type de couvert", "Travaux suggérés","Échéancier","Superficie (ha)"),
               rownames = TRUE,
               options = list(
                 pageLength = 10,
                 stateSave=TRUE), 
               selection = 'single')})
   
-  ## Mechanisme qui permet de mettre en rouge les peuplements selectionnés dans la carte ###
+  ## Méchanisme qui permet de mettre en rouge les peuplements selectionnés dans la carte ###
   
   row_selected <- reactive({
     input$tableau_rows_selected
@@ -113,7 +110,7 @@ server <- function(input, output){
     
   })
   
-  ## mechanisme qui permet de selectionner une rangee dans la table quand un polygone est cliqué ##  
+  ## méchanisme qui permet de selectionner une rangée dans la table quand un polygone est cliqué ##  
   
   observeEvent( input$map_shape_click, { 
     clickid<-input$map_shape_click$id
