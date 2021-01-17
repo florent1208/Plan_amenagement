@@ -9,5 +9,5 @@ Il est possible d'explorer les fonctionnalités de cette application à partir d
 
 Il est aussi possible d'explorer le potentiel de R et Shiny pour créer des plans d'aménagement forestier en consultant une version plus élaborée et bonifiée de ce même plan à l'adresse suivante : https://florent-benoit-pepin.shinyapps.io/plan_amenagement/
 
-## le script
+## Le script
 Le script et les données utilisées pour faire cette application peuvent être consultés et téléchargés à partir de ce répertoire.
